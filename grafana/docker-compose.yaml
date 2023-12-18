@@ -1,0 +1,32 @@
+version: '3'
+services:
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    network_mode: "host"
+    volumes:
+      - ./prometheus:/etc/prometheus
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    network_mode: "host"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+    depends_on:
+      - prometheus
+    volumes:
+      - grafana_data:/var/lib/grafana
+
+  app:
+    build:
+      context: ./
+      dockerfile: app.dockerfile
+    network_mode: "host"
+    depends_on:
+      - prometheus
+
+volumes:
+  grafana_data:
